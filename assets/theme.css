@@ -1,0 +1,124 @@
+body.nexora-background {
+    background-color: #e2e8f0;
+    background-image:
+        radial-gradient(circle at 12% 8%, rgba(8, 145, 178, 0.08), transparent 34rem),
+        radial-gradient(circle at 88% 75%, rgba(59, 130, 246, 0.055), transparent 30rem),
+        linear-gradient(135deg, #f1f5f9 0%, #e5e7eb 52%, #e2e8f0 100%);
+    background-attachment: fixed;
+}
+
+body.nexora-background .bg-white {
+    background-color: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(12px);
+    border-color: rgba(148, 163, 184, 0.34);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.055);
+}
+
+body.nexora-background .bg-white\/80 {
+    background-color: rgba(255, 255, 255, 0.68);
+    backdrop-filter: blur(14px);
+}
+
+body.nexora-background .bg-gray-50 {
+    background-color: rgba(248, 250, 252, 0.58);
+}
+
+html.dark body.nexora-background .bg-white {
+    background-color: rgba(30, 41, 59, 0.62);
+    border-color: rgba(71, 85, 105, 0.62);
+    box-shadow: 0 20px 50px rgba(2, 6, 23, 0.2);
+}
+
+html.dark body.nexora-background .bg-white\/80 {
+    background-color: rgba(30, 41, 59, 0.52);
+}
+
+html.dark body.nexora-background .bg-gray-50 {
+    background-color: rgba(15, 23, 42, 0.52);
+}
+
+html.dark body.nexora-background {
+    background-color: #020617;
+    background-image:
+        radial-gradient(circle at 85% 4%, rgba(8, 145, 178, 0.14), transparent 36rem),
+        radial-gradient(circle at 8% 82%, rgba(14, 116, 144, 0.1), transparent 30rem),
+        linear-gradient(135deg, #020617 0%, #0f172a 52%, #020617 100%);
+}
+
+.nexora-title {
+    background: linear-gradient(100deg, #0f172a 0%, #0e7490 55%, #334155 100%);
+    background-clip: text;
+    color: transparent;
+}
+
+html.dark .nexora-title {
+    background-image: linear-gradient(100deg, #f8fafc 0%, #a5f3fc 55%, #cbd5e1 100%);
+}
+
+.nexora-background button,
+.nexora-background a[role="button"] {
+    transition: transform 200ms ease, box-shadow 200ms ease, background-color 200ms ease, border-color 200ms ease, color 200ms ease;
+}
+
+.nexora-background button:not(:disabled):hover,
+.nexora-background a[role="button"]:hover {
+    transform: scale(1.02);
+}
+
+.nexora-background button:not(:disabled):active,
+.nexora-background a[role="button"]:active {
+    transform: scale(0.98);
+}
+
+.nexora-background tbody tr {
+    transition: background-color 160ms ease;
+}
+
+.nexora-background tbody tr:hover {
+    background-color: rgba(241, 245, 249, 0.62);
+}
+
+html.dark .nexora-background tbody tr:hover {
+    background-color: rgba(51, 65, 85, 0.34);
+}
+
+.nexora-background input[type="datetime-local"] {
+    color-scheme: light;
+}
+
+html.dark .nexora-background input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.85;
+}
+
+dialog {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+    transition: opacity 180ms ease, transform 180ms ease, overlay 180ms allow-discrete, display 180ms allow-discrete;
+}
+
+dialog[open] {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+dialog::backdrop {
+    background: rgba(2, 6, 23, 0.6);
+    backdrop-filter: blur(4px);
+    transition: background-color 180ms ease, backdrop-filter 180ms ease;
+}
+
+@starting-style {
+    dialog[open] {
+        opacity: 0;
+        transform: translateY(8px) scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nexora-background button,
+    .nexora-background a[role="button"],
+    dialog {
+        transition-duration: 0.01ms;
+    }
+}
