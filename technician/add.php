@@ -6,15 +6,36 @@ $user = nexoraTechnicianRequireUser();
 $errorMessage = '';
 $values = [
     'activity_title' => '',
+    'team_members' => [],
+    'team_custom' => '',
     'description' => '',
     'tanggal' => date('Y-m-d\TH:i'),
 ];
 
+try {
+    $pdo = nexoraTechnicianPdo();
+    $techStmt = $pdo->prepare('SELECT id, nama_lengkap FROM users WHERE role = "teknisi" AND id != :my_id ORDER BY nama_lengkap ASC');
+    $techStmt->execute(['my_id' => (int) $user['id']]);
+    $availableTechnicians = $techStmt->fetchAll();
+} catch (Throwable $e) {
+    $availableTechnicians = [];
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    foreach (['activity_title', 'description', 'tanggal'] as $field) {
-        if (is_string($_POST[$field] ?? null)) {
-            $values[$field] = $_POST[$field];
-        }
+    if (is_string($_POST['activity_title'] ?? null)) {
+        $values['activity_title'] = $_POST['activity_title'];
+    }
+    if (is_array($_POST['team_members'] ?? null)) {
+        $values['team_members'] = $_POST['team_members'];
+    }
+    if (is_string($_POST['team_custom'] ?? null)) {
+        $values['team_custom'] = $_POST['team_custom'];
+    }
+    if (is_string($_POST['description'] ?? null)) {
+        $values['description'] = $_POST['description'];
+    }
+    if (is_string($_POST['tanggal'] ?? null)) {
+        $values['tanggal'] = $_POST['tanggal'];
     }
 
     $photoFilename = null;
@@ -26,12 +47,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         try {
             $pdo = nexoraTechnicianPdo();
             $statement = $pdo->prepare(
-                'INSERT INTO logs (user_id, activity, keterangan, foto, tanggal)
-                 VALUES (:user_id, :activity_title, :description, :photo_filename, :tanggal)'
+                'INSERT INTO logs (user_id, activity, team, keterangan, foto, tanggal)
+                 VALUES (:user_id, :activity_title, :team, :description, :photo_filename, :tanggal)'
             );
             $statement->execute([
                 'user_id' => (int) $user['id'],
                 'activity_title' => $input['activity_title'],
+                'team' => $input['team'],
                 'description' => $input['description'],
                 'photo_filename' => $photoFilename,
                 'tanggal' => $input['tanggal'],
@@ -84,6 +106,22 @@ $csrfToken = nexoraTechnicianCsrfToken();
             <div>
                 <label for="activity_title" class="mb-1.5 block text-sm font-semibold">Judul Activity</label>
                 <input id="activity_title" name="activity_title" type="text" maxlength="200" required value="<?= nexoraTechnicianEscape($values['activity_title']) ?>" placeholder="Contoh: Pemasangan Switch Cisco" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-cyan-400">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold">Tim / Rekan Kerja <span class="text-xs font-normal text-gray-500 dark:text-slate-400">(Opsional)</span></label>
+                <p class="mb-2 text-xs text-gray-500 dark:text-slate-400">Pilih dari data teknisi yang bertugas bersama Anda atau tulis nama anggota lain.</p>
+                <?php if ($availableTechnicians !== []): ?>
+                    <div class="mb-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <?php foreach ($availableTechnicians as $tech): ?>
+                            <?php $techName = (string) $tech['nama_lengkap']; ?>
+                            <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-sm transition hover:bg-gray-100/70 dark:border-slate-700 dark:bg-slate-900/40 dark:hover:bg-slate-800/60">
+                                <input type="checkbox" name="team_members[]" value="<?= nexoraTechnicianEscape($techName) ?>" <?= in_array($techName, (array) $values['team_members'], true) ? 'checked' : '' ?> class="size-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500 dark:border-slate-600 dark:bg-slate-800">
+                                <span class="font-medium text-gray-800 dark:text-slate-200"><?= nexoraTechnicianEscape($techName) ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                <input id="team_custom" name="team_custom" type="text" value="<?= nexoraTechnicianEscape($values['team_custom']) ?>" placeholder="Atau ketik nama tim/rekan lain (pisahkan dengan koma jika lebih dari satu)" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900 dark:focus:border-cyan-400">
             </div>
             <div>
                 <label for="description" class="mb-1.5 block text-sm font-semibold">Keterangan pekerjaan</label>

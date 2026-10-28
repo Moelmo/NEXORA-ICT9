@@ -260,6 +260,7 @@ erDiagram
         int id PK
         int user_id FK
         string activity
+        string team "nullable"
         text keterangan
         string foto "nullable"
         datetime tanggal
@@ -290,6 +291,7 @@ erDiagram
 | `id` | INT unsigned, primary key, auto increment |
 | `user_id` | Foreign key ke `users.id` |
 | `activity` | Judul pekerjaan |
+| `team` | Nama tim atau rekan kerja (opsional, nullable) |
 | `keterangan` | Deskripsi pekerjaan |
 | `foto` | Nama file foto, nullable |
 | `tanggal` | DATETIME pekerjaan, default `CURRENT_TIMESTAMP`, dapat diatur manual dari form |

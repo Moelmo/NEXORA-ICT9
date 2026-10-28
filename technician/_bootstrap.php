@@ -71,7 +71,7 @@ function nexoraTechnicianVerifyCsrf(): void
 function nexoraTechnicianOwnedLog(PDO $pdo, int $logId, int $userId): ?array
 {
     $statement = $pdo->prepare(
-        'SELECT id, user_id, activity AS activity_title, keterangan AS description,
+        'SELECT id, user_id, activity AS activity_title, team, keterangan AS description,
             foto AS photo_filename, tanggal
          FROM logs
          WHERE id = :id AND user_id = :user_id
@@ -192,18 +192,49 @@ function nexoraTechnicianParseDate(mixed $value): string
 function nexoraTechnicianValidateLogInput(): array
 {
     $title = $_POST['activity_title'] ?? '';
+    $selectedMembers = $_POST['team_members'] ?? [];
+    $customMembers = $_POST['team_custom'] ?? '';
     $description = $_POST['description'] ?? '';
 
     if (!is_string($title) || !is_string($description)) {
         throw new RuntimeException('Isi formulir tidak valid.');
     }
 
+    $members = [];
+    if (is_array($selectedMembers)) {
+        foreach ($selectedMembers as $m) {
+            if (is_string($m) && trim($m) !== '') {
+                $members[] = trim($m);
+            }
+        }
+    }
+
+    if (is_string($customMembers) && trim($customMembers) !== '') {
+        $extraList = preg_split('/[\r\n,]+/', $customMembers);
+        if (is_array($extraList)) {
+            foreach ($extraList as $extra) {
+                $extraTrimmed = trim($extra);
+                if ($extraTrimmed !== '') {
+                    $members[] = $extraTrimmed;
+                }
+            }
+        }
+    }
+
+    // Unikkan anggota
+    $members = array_values(array_unique($members));
+    $teamString = $members !== [] ? implode("\n", $members) : null;
+
     $title = trim($title);
     $description = trim($description);
-    $titleCharacterCount = preg_match_all('/./us', $title, $titleCharacters);
+    $titleCharacterCount = preg_match_all('/./us', $title);
 
     if ($titleCharacterCount === false || $title === '' || $titleCharacterCount > 200) {
         throw new RuntimeException('Judul wajib diisi dan maksimal 200 karakter.');
+    }
+
+    if ($teamString !== null && strlen($teamString) > 5000) {
+        throw new RuntimeException('Daftar anggota tim terlalu panjang.');
     }
 
     if ($description === '' || strlen($description) > 60000) {
@@ -212,6 +243,7 @@ function nexoraTechnicianValidateLogInput(): array
 
     return [
         'activity_title' => $title,
+        'team' => $teamString,
         'description' => $description,
         'tanggal' => nexoraTechnicianParseDate($_POST['tanggal'] ?? ''),
     ];

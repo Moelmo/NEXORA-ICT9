@@ -58,7 +58,7 @@ try {
     $conditions = [];
     $parameters = [];
     if ($searchQuery !== '') {
-        $conditions[] = '(logs.activity LIKE :search OR logs.keterangan LIKE :search OR users.nama_lengkap LIKE :search)';
+        $conditions[] = '(logs.activity LIKE :search OR logs.team LIKE :search OR logs.keterangan LIKE :search OR users.nama_lengkap LIKE :search)';
         $parameters['search'] = '%' . $searchQuery . '%';
     }
     if ($filterError === '') {
@@ -75,7 +75,7 @@ try {
     $direction = $sort === 'oldest' ? 'ASC' : 'DESC';
     $statement = $pdo->prepare(
         'SELECT logs.id, logs.user_id, users.nama_lengkap AS technician_name,
-            logs.tanggal, logs.activity AS activity_title,
+            logs.tanggal, logs.activity AS activity_title, logs.team,
             logs.keterangan AS description, logs.foto AS photo_filename
          FROM logs
          INNER JOIN users ON users.id = logs.user_id
@@ -222,7 +222,19 @@ try {
                                 <?php $lastMonth = $monthLabel; ?>
                             <?php endif; ?>
                             <tr class="align-top hover:bg-gray-50 dark:hover:bg-white/[0.025]">
-                                <td class="break-words px-4 py-4 text-sm font-semibold"><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></td>
+                                <td class="break-words px-4 py-4 text-sm font-semibold">
+                                    <div><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></div>
+                                    <?php if (!empty($log['team'])): ?>
+                                        <div class="mt-1 space-y-0.5 text-xs font-normal text-cyan-700 dark:text-cyan-400">
+                                            <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                                <div class="flex items-center gap-1">
+                                                    <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                    <span class="break-words"><?= nexoraAdminEscape($teamMember) ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="px-4 py-4 text-sm text-gray-600 dark:text-slate-400"><span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/70 px-2 py-1 text-xs dark:border-slate-700/70 dark:bg-slate-900/50"><i data-lucide="clock-3" class="size-3.5" aria-hidden="true"></i><?= nexoraAdminEscape(nexoraAdminFormatDate($log['tanggal'] ?? null)) ?></span></td>
                                 <td class="break-words px-4 py-4 text-sm font-semibold"><?= nexoraAdminEscape($log['activity_title'] ?? '') ?></td>
                                 <td class="break-words px-4 py-4 text-sm leading-6 text-gray-600 dark:text-slate-400"><?= nl2br(nexoraAdminEscape($log['description'] ?? '')) ?></td>
@@ -258,7 +270,20 @@ try {
                     <?php endif; ?>
                     <article class="rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60">
                         <div class="flex flex-wrap items-start justify-between gap-2 border-b border-gray-200 pb-3 dark:border-slate-700">
-                            <div><p class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400"><i data-lucide="user-round" class="size-3.5 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></p><h2 class="display-font mt-1 break-words text-base font-semibold"><?= nexoraAdminEscape($log['activity_title'] ?? '') ?></h2></div>
+                            <div>
+                                <p class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400"><i data-lucide="user-round" class="size-3.5 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></p>
+                                <?php if (!empty($log['team'])): ?>
+                                    <div class="mt-1 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-400">
+                                        <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                            <div class="flex items-center gap-1">
+                                                <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                <span class="break-words"><?= nexoraAdminEscape($teamMember) ?></span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <h2 class="display-font mt-2 break-words text-base font-semibold"><?= nexoraAdminEscape($log['activity_title'] ?? '') ?></h2>
+                            </div>
                             <time class="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200/70 bg-slate-100/70 px-2 py-1 text-xs text-gray-500 dark:border-slate-700/70 dark:bg-slate-900/50 dark:text-slate-400"><i data-lucide="clock-3" class="size-3.5" aria-hidden="true"></i><?= nexoraAdminEscape(nexoraAdminFormatDate($log['tanggal'] ?? null)) ?></time>
                         </div>
                         <p class="mt-3 whitespace-pre-line break-words text-sm leading-6 text-gray-600 dark:text-slate-400"><?= nexoraAdminEscape($log['description'] ?? '') ?></p>

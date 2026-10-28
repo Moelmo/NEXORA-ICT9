@@ -67,7 +67,7 @@ try {
     if ($role === 'admin') {
         $statement = $pdo->prepare(
                 'SELECT users.nama_lengkap AS technician_name, logs.tanggal,
-                    logs.activity AS activity_title, logs.keterangan AS description,
+                    logs.activity AS activity_title, logs.team, logs.keterangan AS description,
                     logs.foto AS photo_filename
              FROM logs
              INNER JOIN users ON users.id = logs.user_id
@@ -78,7 +78,7 @@ try {
     } else {
         $statement = $pdo->prepare(
                 'SELECT users.nama_lengkap AS technician_name, logs.tanggal,
-                    logs.activity AS activity_title, logs.keterangan AS description,
+                    logs.activity AS activity_title, logs.team, logs.keterangan AS description,
                     logs.foto AS photo_filename
              FROM logs
              INNER JOIN users ON users.id = logs.user_id
@@ -121,12 +121,13 @@ header('Cache-Control: no-store, no-cache, must-revalidate');
 
 $output = fopen('php://output', 'wb');
 fwrite($output, "\xEF\xBB\xBF");
-fputcsv($output, ['Nama Teknisi', 'Tanggal & Waktu', 'Activity', 'Keterangan', 'Foto'], ';', '"', '\\');
+fputcsv($output, ['Nama Teknisi', 'Tanggal & Waktu', 'Activity', 'Tim / Rekan', 'Keterangan', 'Foto'], ';', '"', '\\');
 foreach ($logs as $log) {
     fputcsv($output, [
         $safeCsvValue($log['technician_name']),
         $safeCsvValue($log['tanggal']),
         $safeCsvValue($log['activity_title']),
+        $safeCsvValue($log['team'] ?? ''),
         $safeCsvValue($log['description']),
         $safeCsvValue($log['photo_filename'] ?? ''),
     ], ';', '"', '\\');

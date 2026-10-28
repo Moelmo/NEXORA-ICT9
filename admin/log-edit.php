@@ -13,6 +13,7 @@ try {
     $pdo = nexoraAdminPdo();
     $statement = $pdo->prepare(
         'SELECT logs.id, logs.user_id, logs.activity AS activity_title,
+            logs.team,
             logs.keterangan AS description, logs.foto AS photo_filename,
             logs.tanggal, users.nama_lengkap AS technician_name
          FROM logs
@@ -33,18 +34,49 @@ if (!is_array($log)) {
     exit('Jurnal tidak ditemukan.');
 }
 
+$techStmt = $pdo->query('SELECT id, nama_lengkap FROM users WHERE role = "teknisi" ORDER BY nama_lengkap ASC');
+$availableTechnicians = $techStmt ? $techStmt->fetchAll() : [];
+
+$knownNames = array_map(fn($t) => (string) $t['nama_lengkap'], $availableTechnicians);
+$currentTeamRaw = (string) ($log['team'] ?? '');
+$currentMembersList = array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", $currentTeamRaw))));
+
+$initialSelected = [];
+$initialCustom = [];
+foreach ($currentMembersList as $m) {
+    if (in_array($m, $knownNames, true)) {
+        $initialSelected[] = $m;
+    } else {
+        $initialCustom[] = $m;
+    }
+}
+
 $values = [
     'activity_title' => (string) $log['activity_title'],
+    'team_members' => $initialSelected,
+    'team_custom' => implode(', ', $initialCustom),
     'description' => (string) $log['description'],
     'tanggal' => (new DateTimeImmutable((string) $log['tanggal']))->format('Y-m-d\TH:i'),
 ];
 $errorMessage = '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-    foreach (['activity_title', 'description', 'tanggal'] as $field) {
-        if (is_string($_POST[$field] ?? null)) {
-            $values[$field] = $_POST[$field];
-        }
+    if (is_string($_POST['activity_title'] ?? null)) {
+        $values['activity_title'] = $_POST['activity_title'];
+    }
+    if (is_array($_POST['team_members'] ?? null)) {
+        $values['team_members'] = $_POST['team_members'];
+    } else {
+        $values['team_members'] = [];
+    }
+    if (is_string($_POST['team_custom'] ?? null)) {
+        $values['team_custom'] = $_POST['team_custom'];
+    }
+    if (is_string($_POST['description'] ?? null)) {
+        $values['description'] = $_POST['description'];
+    }
+    if (is_string($_POST['tanggal'] ?? null)) {
+        $values['tanggal'] = $_POST['tanggal'];
     }
 
     $newPhotoFilename = null;
@@ -66,6 +98,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $update = $pdo->prepare(
                 'UPDATE logs
                  SET activity = :activity_title,
+                     team = :team,
                      keterangan = :description,
                      foto = :photo_filename,
                      tanggal = :tanggal
@@ -73,6 +106,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             );
             $update->execute([
                 'activity_title' => $input['activity_title'],
+                'team' => $input['team'],
                 'description' => $input['description'],
                 'photo_filename' => $photoFilename,
                 'tanggal' => $input['tanggal'],
@@ -124,6 +158,22 @@ $currentPhoto = !empty($log['photo_filename'])
         <form method="post" enctype="multipart/form-data" action="log-edit.php?id=<?= (int) $logId ?>" class="space-y-5 rounded-lg border border-gray-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:shadow-none sm:p-7">
             <input type="hidden" name="csrf_token" value="<?= nexoraAdminEscape(nexoraAdminCsrfToken()) ?>">
             <div><label for="activity_title" class="mb-1.5 block text-sm font-semibold">Judul Activity</label><input id="activity_title" name="activity_title" type="text" maxlength="200" required value="<?= nexoraAdminEscape($values['activity_title']) ?>" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900"></div>
+            <div>
+                <label class="mb-1.5 block text-sm font-semibold">Tim / Rekan Kerja <span class="text-xs font-normal text-gray-500 dark:text-slate-400">(Opsional)</span></label>
+                <p class="mb-2 text-xs text-gray-500 dark:text-slate-400">Pilih dari data teknisi atau tulis nama anggota lain.</p>
+                <?php if ($availableTechnicians !== []): ?>
+                    <div class="mb-2.5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <?php foreach ($availableTechnicians as $tech): ?>
+                            <?php $techName = (string) $tech['nama_lengkap']; ?>
+                            <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border border-gray-200 bg-gray-50/50 p-2.5 text-sm transition hover:bg-gray-100/70 dark:border-slate-700 dark:bg-slate-900/40 dark:hover:bg-slate-800/60">
+                                <input type="checkbox" name="team_members[]" value="<?= nexoraAdminEscape($techName) ?>" <?= in_array($techName, (array) $values['team_members'], true) ? 'checked' : '' ?> class="size-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500 dark:border-slate-600 dark:bg-slate-800">
+                                <span class="font-medium text-gray-800 dark:text-slate-200"><?= nexoraAdminEscape($techName) ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+                <input id="team_custom" name="team_custom" type="text" value="<?= nexoraAdminEscape($values['team_custom']) ?>" placeholder="Atau ketik nama tim/rekan lain (pisahkan dengan koma jika lebih dari satu)" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900">
+            </div>
             <div><label for="description" class="mb-1.5 block text-sm font-semibold">Keterangan pekerjaan</label><textarea id="description" name="description" rows="6" maxlength="60000" required class="w-full resize-y rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm leading-6 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900"><?= nexoraAdminEscape($values['description']) ?></textarea></div>
             <div><label for="tanggal" class="mb-1.5 block text-sm font-semibold">Tanggal &amp; waktu pekerjaan</label><input id="tanggal" name="tanggal" type="datetime-local" required value="<?= nexoraAdminEscape($values['tanggal']) ?>" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-cyan-600 focus:ring-2 focus:ring-cyan-600/20 dark:border-slate-600 dark:bg-slate-900 dark:text-white"></div>
             <div>

@@ -54,7 +54,7 @@ try {
     $conditions = ['user_id = :user_id'];
     $parameters = ['user_id' => (int) $user['id']];
     if ($searchQuery !== '') {
-        $conditions[] = '(activity LIKE :search OR keterangan LIKE :search)';
+        $conditions[] = '(activity LIKE :search OR team LIKE :search OR keterangan LIKE :search)';
         $parameters['search'] = '%' . $searchQuery . '%';
     }
     if ($filterError === '') {
@@ -69,7 +69,7 @@ try {
     }
     $direction = $sort === 'oldest' ? 'ASC' : 'DESC';
     $statement = $pdo->prepare(
-        'SELECT id, activity AS activity_title, keterangan AS description,
+        'SELECT id, activity AS activity_title, team, keterangan AS description,
             foto AS photo_filename, tanggal
          FROM logs
          WHERE ' . implode(' AND ', $conditions) . '
@@ -206,9 +206,10 @@ $csrfToken = nexoraTechnicianCsrfToken();
         <?php elseif ($databaseReady): ?>
             <div class="hidden overflow-hidden rounded-xl border border-slate-200/50 bg-white/80 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60 md:block">
                 <table class="w-full table-fixed text-left">
-                    <colgroup><col class="w-[17%]"><col class="w-[25%]"><col class="w-[34%]"><col class="w-[12%]"><col class="w-[12%]"></colgroup>
+                    <colgroup><col class="w-[18%]"><col class="w-[15%]"><col class="w-[20%]"><col class="w-[27%]"><col class="w-[10%]"><col class="w-[10%]"></colgroup>
                     <thead class="border-b border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-900/70">
                         <tr class="text-[11px] font-bold uppercase tracking-wider text-gray-600 dark:text-slate-400">
+                            <th scope="col" class="px-4 py-3.5">Nama Teknisi</th>
                             <th scope="col" class="px-4 py-3.5">Tanggal</th>
                             <th scope="col" class="px-4 py-3.5">Activity</th>
                             <th scope="col" class="px-4 py-3.5">Keterangan</th>
@@ -222,10 +223,23 @@ $csrfToken = nexoraTechnicianCsrfToken();
                             <?php $photo = !empty($log['photo_filename']) ? '../uploads/' . rawurlencode(basename((string) $log['photo_filename'])) : null; ?>
                             <?php $monthLabel = nexoraTechnicianFormatMonth($log['tanggal'] ?? null); ?>
                             <?php if ($monthLabel !== $lastMonth): ?>
-                                <tr class="bg-slate-100/70 dark:bg-slate-900/70"><th colspan="5" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-cyan-800 dark:text-cyan-300"><?= nexoraTechnicianEscape($monthLabel) ?></th></tr>
+                                <tr class="bg-slate-100/70 dark:bg-slate-900/70"><th colspan="6" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-cyan-800 dark:text-cyan-300"><?= nexoraTechnicianEscape($monthLabel) ?></th></tr>
                                 <?php $lastMonth = $monthLabel; ?>
                             <?php endif; ?>
                             <tr class="align-top hover:bg-gray-50 dark:hover:bg-white/[0.025]">
+                                <td class="break-words px-4 py-4 text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                    <div><?= nexoraTechnicianEscape($user['full_name'] ?? 'Teknisi') ?></div>
+                                    <?php if (!empty($log['team'])): ?>
+                                        <div class="mt-1 space-y-0.5 text-xs font-normal text-cyan-700 dark:text-cyan-400">
+                                            <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                                <div class="flex items-center gap-1">
+                                                    <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                    <span class="break-words"><?= nexoraTechnicianEscape($teamMember) ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="px-4 py-4 text-sm text-gray-600 dark:text-slate-400"><span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200/70 bg-slate-100/70 px-2 py-1 text-xs dark:border-slate-700/70 dark:bg-slate-900/50"><i data-lucide="clock-3" class="size-3.5" aria-hidden="true"></i><?= nexoraTechnicianEscape(nexoraTechnicianFormatDate($log['tanggal'] ?? null)) ?></span></td>
                                 <td class="break-words px-4 py-4 text-sm font-semibold"><?= nexoraTechnicianEscape($log['activity_title'] ?? '') ?></td>
                                 <td class="break-words px-4 py-4 text-sm leading-6 text-gray-600 dark:text-slate-400"><?= nl2br(nexoraTechnicianEscape($log['description'] ?? '')) ?></td>
@@ -263,7 +277,23 @@ $csrfToken = nexoraTechnicianCsrfToken();
                     <?php endif; ?>
                     <article class="rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60">
                         <div class="flex flex-wrap items-start justify-between gap-2 border-b border-gray-200 pb-3 dark:border-slate-700">
-                            <h2 class="display-font flex min-w-0 items-center gap-2 break-words text-base font-semibold"><i data-lucide="briefcase-business" class="size-4 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= nexoraTechnicianEscape($log['activity_title'] ?? '') ?></h2>
+                            <div>
+                                <p class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
+                                    <i data-lucide="user-round" class="size-3.5 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i>
+                                    <span><?= nexoraTechnicianEscape($user['full_name'] ?? 'Teknisi') ?></span>
+                                </p>
+                                <?php if (!empty($log['team'])): ?>
+                                    <div class="mt-1 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-400">
+                                        <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                            <div class="flex items-center gap-1">
+                                                <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                <span class="break-words"><?= nexoraTechnicianEscape($teamMember) ?></span>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                                <h2 class="display-font mt-2 break-words text-base font-semibold"><?= nexoraTechnicianEscape($log['activity_title'] ?? '') ?></h2>
+                            </div>
                             <time class="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200/70 bg-slate-100/70 px-2 py-1 text-xs text-gray-500 dark:border-slate-700/70 dark:bg-slate-900/50 dark:text-slate-400"><i data-lucide="clock-3" class="size-3.5" aria-hidden="true"></i><?= nexoraTechnicianEscape(nexoraTechnicianFormatDate($log['tanggal'] ?? null)) ?></time>
                         </div>
                         <p class="mt-3 whitespace-pre-line break-words text-sm leading-6 text-gray-600 dark:text-slate-400"><?= nexoraTechnicianEscape($log['description'] ?? '') ?></p>

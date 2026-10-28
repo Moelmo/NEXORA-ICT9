@@ -54,7 +54,7 @@ if (is_file($databaseConfig)) {
         $conditions = [];
         $parameters = [];
         if ($searchQuery !== '') {
-            $conditions[] = '(logs.activity LIKE :search OR logs.keterangan LIKE :search OR users.nama_lengkap LIKE :search)';
+            $conditions[] = '(logs.activity LIKE :search OR logs.team LIKE :search OR logs.keterangan LIKE :search OR users.nama_lengkap LIKE :search)';
             $parameters['search'] = '%' . $searchQuery . '%';
         }
         if ($filterError === '') {
@@ -74,6 +74,7 @@ if (is_file($databaseConfig)) {
                 'SELECT users.nama_lengkap AS technician_name,
                     logs.tanggal,
                     logs.activity AS activity_title,
+                    logs.team,
                     logs.keterangan AS description,
                     logs.foto AS photo_filename
              FROM logs
@@ -336,7 +337,19 @@ function formatLogMonth(mixed $value): string
                                     <?php $lastMonth = $monthLabel; ?>
                                 <?php endif; ?>
                                 <tr class="align-top transition hover:bg-gray-50 dark:hover:bg-white/[0.025]">
-                                    <td class="break-words px-4 py-4 text-sm font-semibold text-gray-800 dark:text-slate-200"><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></td>
+                                    <td class="break-words px-4 py-4 text-sm font-semibold text-gray-800 dark:text-slate-200">
+                                        <div><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></div>
+                                        <?php if (!empty($log['team'])): ?>
+                                            <div class="mt-1 space-y-0.5 text-xs font-normal text-cyan-700 dark:text-cyan-400">
+                                                <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                                    <div class="flex items-center gap-1">
+                                                        <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                        <span class="break-words"><?= escapeHtml($teamMember) ?></span>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="px-4 py-4 text-sm leading-5 text-gray-600 dark:text-slate-400"><?= escapeHtml(formatLogDate($log['tanggal'] ?? null)) ?></td>
                                     <td class="break-words px-4 py-4 text-sm font-semibold"><?= escapeHtml($log['activity_title'] ?? 'Aktivitas') ?></td>
                                     <td class="break-words px-4 py-4 text-sm leading-6 text-gray-600 dark:text-slate-400"><?= nl2br(escapeHtml($log['description'] ?? '')) ?></td>
@@ -366,7 +379,19 @@ function formatLogMonth(mixed $value): string
                         <?php endif; ?>
                         <article class="rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60">
                             <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 border-b border-gray-200 pb-3 dark:border-slate-700">
-                                <h3 class="flex min-w-0 items-center gap-2 break-words text-sm font-semibold"><i data-lucide="user-round" class="size-4 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></h3>
+                                <div>
+                                    <h3 class="flex min-w-0 items-center gap-2 break-words text-sm font-semibold"><i data-lucide="user-round" class="size-4 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></h3>
+                                    <?php if (!empty($log['team'])): ?>
+                                        <div class="mt-1 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-400">
+                                            <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
+                                                <div class="flex items-center gap-1">
+                                                    <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                    <span class="break-words"><?= escapeHtml($teamMember) ?></span>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                                 <time class="text-xs text-gray-500 dark:text-slate-500"><?= escapeHtml(formatLogDate($log['tanggal'] ?? null)) ?></time>
                             </div>
                             <div class="py-3">
