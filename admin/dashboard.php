@@ -222,13 +222,16 @@ try {
                                 <?php $lastMonth = $monthLabel; ?>
                             <?php endif; ?>
                             <tr class="align-top hover:bg-gray-50 dark:hover:bg-white/[0.025]">
-                                <td class="break-words px-4 py-4 text-sm font-semibold">
-                                    <div><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></div>
+                                <td class="break-words px-4 py-4 text-xs font-semibold text-gray-800 dark:text-slate-200">
+                                    <div class="flex items-center gap-1.5">
+                                        <i data-lucide="user-round" class="size-3.5 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i>
+                                        <span><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></span>
+                                    </div>
                                     <?php if (!empty($log['team'])): ?>
-                                        <div class="mt-1 space-y-0.5 text-xs font-normal text-cyan-700 dark:text-cyan-400">
+                                        <div class="mt-1 space-y-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-400">
                                             <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
-                                                <div class="flex items-center gap-1">
-                                                    <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                <div class="flex items-center gap-1.5">
+                                                    <i data-lucide="user-round" class="size-3.5 shrink-0 opacity-70" aria-hidden="true"></i>
                                                     <span class="break-words"><?= nexoraAdminEscape($teamMember) ?></span>
                                                 </div>
                                             <?php endforeach; ?>
@@ -271,12 +274,12 @@ try {
                     <article class="rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60">
                         <div class="flex flex-wrap items-start justify-between gap-2 border-b border-gray-200 pb-3 dark:border-slate-700">
                             <div>
-                                <p class="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400"><i data-lucide="user-round" class="size-3.5 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></p>
+                                <p class="flex items-center gap-1.5 text-xs font-semibold text-gray-800 dark:text-slate-200"><i data-lucide="user-round" class="size-3.5 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= nexoraAdminEscape($log['technician_name'] ?? 'Teknisi') ?></p>
                                 <?php if (!empty($log['team'])): ?>
-                                    <div class="mt-1 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-400">
+                                    <div class="mt-1 space-y-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-400">
                                         <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
-                                            <div class="flex items-center gap-1">
-                                                <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                            <div class="flex items-center gap-1.5">
+                                                <i data-lucide="user-round" class="size-3.5 shrink-0 opacity-70" aria-hidden="true"></i>
                                                 <span class="break-words"><?= nexoraAdminEscape($teamMember) ?></span>
                                             </div>
                                         <?php endforeach; ?>

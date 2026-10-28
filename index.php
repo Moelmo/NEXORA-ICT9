@@ -337,13 +337,16 @@ function formatLogMonth(mixed $value): string
                                     <?php $lastMonth = $monthLabel; ?>
                                 <?php endif; ?>
                                 <tr class="align-top transition hover:bg-gray-50 dark:hover:bg-white/[0.025]">
-                                    <td class="break-words px-4 py-4 text-sm font-semibold text-gray-800 dark:text-slate-200">
-                                        <div><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></div>
+                                    <td class="break-words px-4 py-4 text-xs font-semibold text-gray-800 dark:text-slate-200">
+                                        <div class="flex items-center gap-1.5">
+                                            <i data-lucide="user-round" class="size-3.5 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i>
+                                            <span><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></span>
+                                        </div>
                                         <?php if (!empty($log['team'])): ?>
-                                            <div class="mt-1 space-y-0.5 text-xs font-normal text-cyan-700 dark:text-cyan-400">
+                                            <div class="mt-1 space-y-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-400">
                                                 <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
-                                                    <div class="flex items-center gap-1">
-                                                        <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <i data-lucide="user-round" class="size-3.5 shrink-0 opacity-70" aria-hidden="true"></i>
                                                         <span class="break-words"><?= escapeHtml($teamMember) ?></span>
                                                     </div>
                                                 <?php endforeach; ?>
@@ -380,12 +383,12 @@ function formatLogMonth(mixed $value): string
                         <article class="rounded-xl border border-slate-200/50 bg-white/80 p-4 shadow-xl shadow-slate-900/5 backdrop-blur-md dark:border-slate-700/50 dark:bg-slate-800/60">
                             <div class="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 border-b border-gray-200 pb-3 dark:border-slate-700">
                                 <div>
-                                    <h3 class="flex min-w-0 items-center gap-2 break-words text-sm font-semibold"><i data-lucide="user-round" class="size-4 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></h3>
+                                    <h3 class="flex min-w-0 items-center gap-1.5 break-words text-xs font-semibold"><i data-lucide="user-round" class="size-3.5 shrink-0 text-cyan-700 dark:text-cyan-400" aria-hidden="true"></i><?= escapeHtml($log['technician_name'] ?? 'Teknisi') ?></h3>
                                     <?php if (!empty($log['team'])): ?>
-                                        <div class="mt-1 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-400">
+                                        <div class="mt-1 space-y-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-400">
                                             <?php foreach (array_filter(array_map('trim', explode("\n", str_replace(["\r\n", "\r"], "\n", (string) $log['team'])))) as $teamMember): ?>
-                                                <div class="flex items-center gap-1">
-                                                    <i data-lucide="user" class="size-3 shrink-0 opacity-70" aria-hidden="true"></i>
+                                                <div class="flex items-center gap-1.5">
+                                                    <i data-lucide="user-round" class="size-3.5 shrink-0 opacity-70" aria-hidden="true"></i>
                                                     <span class="break-words"><?= escapeHtml($teamMember) ?></span>
                                                 </div>
                                             <?php endforeach; ?>
