@@ -37,7 +37,7 @@ NEXORA ICT9 dibuat dengan **PHP Native**, **MySQL/MariaDB**, dan **Tailwind CSS*
 <table align="center">
   <tr>
     <td align="center"><h3>3</h3><sub>role pengguna<br>Guest · Teknisi · Admin</sub></td>
-    <td align="center"><h3>2 MB</h3><sub>batas foto per jurnal<br>JPG · PNG · WEBP</sub></td>
+    <td align="center"><h3>5 MB</h3><sub>batas foto per jurnal<br>JPG · PNG · WEBP</sub></td>
     <td align="center"><h3>CSV</h3><sub>export kompatibel Excel<br>dengan filter tanggal</sub></td>
     <td align="center"><h3>PDO</h3><sub>seluruh query memakai<br>prepared statements</sub></td>
   </tr>
@@ -69,7 +69,7 @@ NEXORA ICT9 dibuat dengan **PHP Native**, **MySQL/MariaDB**, dan **Tailwind CSS*
   <tr>
     <td valign="top">
       <b>Foto opsional &amp; Kelola Bukti</b><br>
-      Maksimal satu foto per jurnal (JPG, PNG, WEBP, maks. 2 MB). Tersedia opsi menghapus foto dokumentasi saat edit jurnal.
+      Maksimal satu foto per jurnal (JPG, PNG, WEBP, maks. 5 MB). Tersedia opsi menghapus foto dokumentasi saat edit jurnal.
     </td>
     <td valign="top">
       <b>Keamanan &amp; Akun</b><br>

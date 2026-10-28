@@ -187,9 +187,9 @@ function nexoraAdminUploadPhoto(?array $upload): ?string
         || !is_uploaded_file($temporaryPath)
         || $actualSize === false
         || $actualSize < 1
-        || $actualSize > 2 * 1024 * 1024
+        || $actualSize > 5 * 1024 * 1024
     ) {
-        throw new RuntimeException('Foto harus berukuran maksimal 2 MB.');
+        throw new RuntimeException('Foto harus berukuran maksimal 5 MB.');
     }
 
     $mimeType = (new finfo(FILEINFO_MIME_TYPE))->file($temporaryPath);

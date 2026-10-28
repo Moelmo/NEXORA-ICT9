@@ -134,7 +134,7 @@ $csrfToken = nexoraTechnicianCsrfToken();
             <div>
                 <label for="photo" class="mb-1.5 block text-sm font-semibold">Foto dokumentasi</label>
                 <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full cursor-pointer rounded-md border border-gray-300 bg-white text-sm text-gray-700 file:mr-4 file:border-0 file:bg-gray-100 file:px-4 file:py-2.5 file:font-semibold dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:file:bg-slate-700 dark:file:text-slate-100">
-                <p class="mt-1.5 text-xs text-gray-500 dark:text-slate-400">Opsional. JPG, PNG, atau WEBP. Maksimal 2 MB.</p>
+                <p class="mt-1.5 text-xs text-gray-500 dark:text-slate-400">Opsional. JPG, PNG, atau WEBP. Maksimal 5 MB.</p>
             </div>
             <div class="flex flex-col-reverse gap-3 border-t border-gray-200 pt-5 dark:border-slate-700 sm:flex-row sm:justify-end">
                 <a href="dashboard.php" class="rounded-md border border-gray-300 px-4 py-2.5 text-center text-sm font-semibold hover:bg-gray-50 dark:border-slate-600 dark:hover:bg-slate-700">Batal</a>

@@ -99,9 +99,9 @@ function nexoraTechnicianPhotoUpload(?array $upload): ?string
         || !is_uploaded_file($temporaryPath)
         || !isset($upload['size'])
         || (int) $upload['size'] < 1
-        || (int) $upload['size'] > 2 * 1024 * 1024
+        || (int) $upload['size'] > 5 * 1024 * 1024
     ) {
-        throw new RuntimeException('Foto harus berukuran maksimal 2 MB.');
+        throw new RuntimeException('Foto harus berukuran maksimal 5 MB.');
     }
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
